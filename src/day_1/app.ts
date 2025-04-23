@@ -13,15 +13,27 @@ lines.forEach(value => {
     let seperated = value.split('   ')
     left.push(parseInt(seperated[0].trim()));
     right.push(parseInt(seperated[1].trim()));
-})
+});
+
+let duplicationCount: {[index: number]: number} = {};
 
 left = left.sort((a, b) => a - b);
 right = right.sort((a, b) => a - b );
 
-console.log(left, right);
+right.forEach((value) => {
+    if (!duplicationCount[value]) {
+        duplicationCount[value] = 1;
+    } else {
+        duplicationCount[value] += 1;
+    }
+})
 
 let res = 0;
 
-left.forEach((value, index) => res += Math.abs(value - right[index]));
+left.forEach(value => {
+    if (duplicationCount[value]) {
+        res += value * duplicationCount[value];
+    }
+});
 
 console.log(res);
