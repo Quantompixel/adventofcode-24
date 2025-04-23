@@ -22,16 +22,18 @@ function checkReport(report: number[]): boolean {
     let isIncreasing: null | boolean = null;
     let problemDampenerAvailable = true;
 
-    console.log(report);
-    const check: () => boolean = () => {
+    const check = (report: number[]) => {
         for (let index = 0; index < report.length; index++) {
             const useProblemDampener = () => {
                 if (!problemDampenerAvailable) return false;
+                problemDampenerAvailable = false;
 
-                console.log('old', report)
-                report.splice(index, 1);
-                console.log('new', report);
-                return check();
+                for (let i = index; i < report.length; i++) {
+                    let sliced = report.slice(0, i).concat(report.slice(i + 1, report.length));
+                    if (check(sliced)) return true;
+                }
+
+                return false;
             }
 
             let currentValue = report[index];
@@ -45,30 +47,29 @@ function checkReport(report: number[]): boolean {
             }
 
             if (Math.abs(diff) < 1 || Math.abs(diff) > 3) {
-                if (useProblemDampener()) return true;
-                console.log('unsafe because diff not in boundaries');
-                return false;
+                console.log(report, 'unsafe because diff not in boundaries');
+                return useProblemDampener();
+
             }
 
             if (diff < 0 && isIncreasing) {
-                if (useProblemDampener()) return true;
-                console.log(previousValue, currentValue, 'unsafe not increasing');
-                return false;
+                console.log(report, previousValue, currentValue, 'unsafe not increasing');
+                return useProblemDampener();
+
             }
 
             if (diff > 0 && !isIncreasing) {
-                if (useProblemDampener()) return true;
-                console.log(previousValue, currentValue, 'unsafe not decreasing');
-                return false;
+                console.log(report, previousValue, currentValue, 'unsafe not decreasing');
+                return useProblemDampener();
+
             }
-
-
         }
 
+        console.log(report, 'save')
         return true;
     }
 
-    return check();
+    return check(report);
 }
 
 console.log('safe reports: ', safeReports);
