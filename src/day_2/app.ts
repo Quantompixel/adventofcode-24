@@ -1,18 +1,24 @@
 import * as fs from 'fs';
 
-// const path = './src/day_2/input/example.txt';
-const path = './src/day_2/input/input.txt';
+const path = './src/day_2/input/example.txt';
+// const path = './src/day_2/input/input.txt';
 
 const file = fs.readFileSync(path, 'utf8');
 const lines = file.trim().split('\r\n');
 
 let reports: number[][] = []
 
-let unsafeReports = 0;
+let safeReports = 0;
 
 lines.forEach((value) => reports.push(value.split(' ').map(value => parseInt(value))));
 
 reports.forEach(report => {
+    if (checkReport(report)) {
+        safeReports++;
+    }
+});
+
+function checkReport(report: number[]) {
     let isIncreasing: null | boolean = null;
     console.log(report);
     for (let index = 0; index < report.length; index++) {
@@ -28,23 +34,22 @@ reports.forEach(report => {
 
         if (Math.abs(diff) < 1 || Math.abs(diff) > 3) {
             console.log('unsafe because diff not in boundaries');
-            unsafeReports++;
-            break;
+            return false;
         }
 
         if (diff < 0 && isIncreasing) {
             console.log(previousValue, currentValue, 'unsafe not increasing');
-            unsafeReports++;
-            break;
+            return false;
         }
 
         if (diff > 0 && !isIncreasing) {
             console.log(previousValue, currentValue, 'unsafe not decreasing');
-            unsafeReports++;
-            break;
+            return false;
         }
     }
-})
 
-console.log('safe reports: ', reports.length - unsafeReports);
+    return true;
+}
+
+console.log('safe reports: ', safeReports);
 
