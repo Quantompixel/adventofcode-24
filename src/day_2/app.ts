@@ -18,37 +18,41 @@ reports.forEach(report => {
     }
 });
 
-function checkReport(report: number[]) {
+function checkReport(report: number[]): boolean {
     let isIncreasing: null | boolean = null;
     console.log(report);
-    for (let index = 0; index < report.length; index++) {
-        let currentValue = report[index];
-        let previousValue = index === 0 ? null : report[index - 1];
-        if (previousValue == null) continue;
+    const check: () => boolean = () => {
+        for (let index = 0; index < report.length; index++) {
+            let currentValue = report[index];
+            let previousValue = index === 0 ? null : report[index - 1];
+            if (previousValue == null) continue;
 
-        let diff = previousValue - currentValue;
+            let diff = previousValue - currentValue;
 
-        if (isIncreasing == null) {
-            isIncreasing = diff > 0;
+            if (isIncreasing == null) {
+                isIncreasing = diff > 0;
+            }
+
+            if (Math.abs(diff) < 1 || Math.abs(diff) > 3) {
+                console.log('unsafe because diff not in boundaries');
+                return false;
+            }
+
+            if (diff < 0 && isIncreasing) {
+                console.log(previousValue, currentValue, 'unsafe not increasing');
+                return false;
+            }
+
+            if (diff > 0 && !isIncreasing) {
+                console.log(previousValue, currentValue, 'unsafe not decreasing');
+                return false;
+            }
         }
 
-        if (Math.abs(diff) < 1 || Math.abs(diff) > 3) {
-            console.log('unsafe because diff not in boundaries');
-            return false;
-        }
-
-        if (diff < 0 && isIncreasing) {
-            console.log(previousValue, currentValue, 'unsafe not increasing');
-            return false;
-        }
-
-        if (diff > 0 && !isIncreasing) {
-            console.log(previousValue, currentValue, 'unsafe not decreasing');
-            return false;
-        }
+        return true;
     }
 
-    return true;
+    return check();
 }
 
 console.log('safe reports: ', safeReports);
