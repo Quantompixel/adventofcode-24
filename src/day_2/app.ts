@@ -20,9 +20,20 @@ reports.forEach(report => {
 
 function checkReport(report: number[]): boolean {
     let isIncreasing: null | boolean = null;
+    let problemDampenerAvailable = true;
+
     console.log(report);
     const check: () => boolean = () => {
         for (let index = 0; index < report.length; index++) {
+            const useProblemDampener = () => {
+                if (!problemDampenerAvailable) return false;
+
+                console.log('old', report)
+                report.splice(index, 1);
+                console.log('new', report);
+                return check();
+            }
+
             let currentValue = report[index];
             let previousValue = index === 0 ? null : report[index - 1];
             if (previousValue == null) continue;
@@ -34,19 +45,24 @@ function checkReport(report: number[]): boolean {
             }
 
             if (Math.abs(diff) < 1 || Math.abs(diff) > 3) {
+                if (useProblemDampener()) return true;
                 console.log('unsafe because diff not in boundaries');
                 return false;
             }
 
             if (diff < 0 && isIncreasing) {
+                if (useProblemDampener()) return true;
                 console.log(previousValue, currentValue, 'unsafe not increasing');
                 return false;
             }
 
             if (diff > 0 && !isIncreasing) {
+                if (useProblemDampener()) return true;
                 console.log(previousValue, currentValue, 'unsafe not decreasing');
                 return false;
             }
+
+
         }
 
         return true;
