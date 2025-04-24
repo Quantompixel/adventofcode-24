@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 
-const path = './src/day_2/input/example.txt';
-// const path = './src/day_2/input/input.txt';
+// const path = './src/day_2/input/example.txt';
+const path = './src/day_2/input/input.txt';
 
 const file = fs.readFileSync(path, 'utf8');
 const lines = file.trim().split('\r\n');
@@ -19,16 +19,18 @@ reports.forEach(report => {
 });
 
 function checkReport(report: number[]): boolean {
-    let isIncreasing: null | boolean = null;
     let problemDampenerAvailable = true;
+    let isIncreasing: null | boolean = null;
 
     const check = (report: number[]) => {
-        for (let index = 0; index < report.length; index++) {
+
+        for (let index = 0; index < report.length - 1; index++) {
             const useProblemDampener = () => {
                 if (!problemDampenerAvailable) return false;
                 problemDampenerAvailable = false;
 
-                for (let i = index; i < report.length; i++) {
+                for (let i = 0; i < report.length; i++) {
+                    isIncreasing = null;
                     let sliced = report.slice(0, i).concat(report.slice(i + 1, report.length));
                     if (check(sliced)) return true;
                 }
@@ -37,29 +39,28 @@ function checkReport(report: number[]): boolean {
             }
 
             let currentValue = report[index];
-            let previousValue = index === 0 ? null : report[index - 1];
-            if (previousValue == null) continue;
+            let nextValue = report[index + 1];
 
-            let diff = previousValue - currentValue;
+            let diff = currentValue - nextValue;
 
             if (isIncreasing == null) {
                 isIncreasing = diff > 0;
             }
 
             if (Math.abs(diff) < 1 || Math.abs(diff) > 3) {
-                console.log(report, 'unsafe because diff not in boundaries');
+                console.log(report, currentValue, nextValue, 'unsafe because diff', Math.abs(currentValue - nextValue) ,'not in boundaries');
                 return useProblemDampener();
 
             }
 
             if (diff < 0 && isIncreasing) {
-                console.log(report, previousValue, currentValue, 'unsafe not increasing');
+                console.log(report, currentValue, nextValue, 'unsafe not decreasing');
                 return useProblemDampener();
 
             }
 
             if (diff > 0 && !isIncreasing) {
-                console.log(report, previousValue, currentValue, 'unsafe not decreasing');
+                console.log(report, currentValue, nextValue, 'unsafe not increasing');
                 return useProblemDampener();
 
             }
