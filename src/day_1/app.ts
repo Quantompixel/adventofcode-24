@@ -10,12 +10,12 @@ let left: number[] = [];
 let right: number[] = [];
 
 lines.forEach(value => {
-    let seperated = value.split('   ')
+    const seperated = value.split('   ')
     left.push(parseInt(seperated[0].trim()));
     right.push(parseInt(seperated[1].trim()));
 });
 
-let duplicationCount: {[index: number]: number} = {};
+const duplicationCount: {[index: number]: number} = {};
 
 left = left.sort((a, b) => a - b);
 right = right.sort((a, b) => a - b );

@@ -6,7 +6,7 @@ const path = './src/day_2/input/input.txt';
 const file = fs.readFileSync(path, 'utf8');
 const lines = file.trim().split('\r\n');
 
-let reports: number[][] = []
+const reports: number[][] = []
 
 let safeReports = 0;
 
@@ -31,17 +31,17 @@ function checkReport(report: number[]): boolean {
 
                 for (let i = 0; i < report.length; i++) {
                     isIncreasing = null;
-                    let sliced = report.slice(0, i).concat(report.slice(i + 1, report.length));
+                    const sliced = report.slice(0, i).concat(report.slice(i + 1, report.length));
                     if (check(sliced)) return true;
                 }
 
                 return false;
             }
 
-            let currentValue = report[index];
-            let nextValue = report[index + 1];
+            const currentValue = report[index];
+            const nextValue = report[index + 1];
 
-            let diff = currentValue - nextValue;
+            const diff = currentValue - nextValue;
 
             if (isIncreasing == null) {
                 isIncreasing = diff > 0;
