@@ -17,11 +17,11 @@ for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
     const row = matrix[rowIndex];
 
     for (let columnIndex = 0; columnIndex < row.length; columnIndex++) {
-        let buffer: Array<[number, number]> = [];
+        const buffer: Array<[number, number]> = [];
 
         const searchXMas = (position: [number, number]): boolean => {
-            let posY = position[0];
-            let posX = position[1];
+            const posY = position[0];
+            const posX = position[1];
 
             /*
                 M S
@@ -46,7 +46,7 @@ for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
             const directions = [[-1, -1], [-1, 1], [1, 1], [1, -1]];
 
             let XMasBuffer = '';
-            for (let direction of directions) {
+            for (const direction of directions) {
                 const posYinDirection = posY + direction[0];
                 const posXinDirection = posX + direction[1];
 
