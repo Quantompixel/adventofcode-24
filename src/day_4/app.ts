@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 
-// const path = './src/day_4/input/example.txt';
-const path = './src/day_4/input/input.txt';
+const path = './src/day_4/input/example.txt';
+// const path = './src/day_4/input/input.txt';
 
 const file = fs.readFileSync(path, 'utf8');
 const lines = file.trim().split('\r\n');
@@ -19,7 +19,7 @@ for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
     for (let columnIndex = 0; columnIndex < row.length; columnIndex++) {
         let buffer: Array<[number, number]> = [];
 
-        const searchXMas = (position: [number, number]) => {
+        const searchXMas = (position: [number, number]): boolean => {
             let posY = position[0];
             let posX = position[1];
 
@@ -50,10 +50,10 @@ for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
                 const posYinDirection = posY + direction[0];
                 const posXinDirection = posX + direction[1];
 
-                if (posYinDirection < 0) return;
-                if (posXinDirection < 0) return;
-                if (posYinDirection > matrix.length - 1) return;
-                if (posXinDirection > matrix[posYinDirection].length - 1) return;
+                if (posYinDirection < 0) return false;
+                if (posXinDirection < 0) return false;
+                if (posYinDirection > matrix.length - 1) return false;
+                if (posXinDirection > matrix[posYinDirection].length - 1) return false;
 
                 buffer.push([posYinDirection, posXinDirection]);
                 XMasBuffer += matrix[posYinDirection][posXinDirection];
@@ -61,12 +61,17 @@ for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
 
             if (XMasOrientations.includes(XMasBuffer)) {
                 positionsFound.push(...buffer);
-                res++;
+                return true;
             }
+
+            return false;
         }
 
         if (matrix[rowIndex][columnIndex] == 'A') {
-            searchXMas([rowIndex, columnIndex]);
+            if (searchXMas([rowIndex, columnIndex])) {
+                positionsFound.push([rowIndex, columnIndex]);
+                res++;
+            }
         }
     }
 }
