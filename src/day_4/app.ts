@@ -19,49 +19,54 @@ for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
     for (let columnIndex = 0; columnIndex < row.length; columnIndex++) {
         let buffer: Array<[number, number]> = [];
 
-        const searchWordInDirection = (position: [number, number], direction: [number, number], pointer: number) => {
-            const word = 'XMAS';
+        const searchXMas = (position: [number, number]) => {
+            let posY = position[0];
+            let posX = position[1];
 
-            let positionVertical = position[0];
-            let positionHorizontal = position[1];
+            /*
+                M S
+                 A
+                M S
 
-            if (positionVertical < 0) return;
-            if (positionHorizontal < 0) return;
-            if (positionVertical > matrix.length - 1) return;
-            if (positionHorizontal > matrix[positionVertical].length - 1) return;
+                M M
+                 A
+                S S
 
-            const current = matrix[positionVertical][positionHorizontal];
-            // console.log(current);
+                S M
+                 A
+                S M
 
-            if (!current) return;
-            if (current != word[pointer]) return;
+                S S
+                 A
+                M M
 
-            buffer.push([positionVertical, positionHorizontal]);
+                From top left to bottom left
+             */
+            const XMasOrientations = ['MSSM', 'MMSS', 'SMMS', 'SSMM'];
+            const directions = [[-1, -1], [-1, 1], [1, 1], [1, -1]];
 
-            if (current == word[pointer] && pointer == word.length - 1) {
-                // console.log('XMAS', direction);
-                positionsFound.push(...buffer);
-                res++;
-                return;
+            let XMasBuffer = '';
+            for (let direction of directions) {
+                const posYinDirection = posY + direction[0];
+                const posXinDirection = posX + direction[1];
+
+                if (posYinDirection < 0) return;
+                if (posXinDirection < 0) return;
+                if (posYinDirection > matrix.length - 1) return;
+                if (posXinDirection > matrix[posYinDirection].length - 1) return;
+
+                buffer.push([posYinDirection, posXinDirection]);
+                XMasBuffer += matrix[posYinDirection][posXinDirection];
             }
 
-            positionVertical += direction[0];
-            positionHorizontal += direction[1];
-            searchWordInDirection([positionVertical, positionHorizontal], direction, pointer + 1);
+            if (XMasOrientations.includes(XMasBuffer)) {
+                positionsFound.push(...buffer);
+                res++;
+            }
         }
 
-        const directions: Array<[number, number]> = [
-            [-1, 0], [-1, 1],
-            [0, 1], [1, 1],
-            [1, 0], [1, -1],
-            [0, -1], [-1, -1]
-        ];
-
-        for (const direction of directions) {
-            // console.log('search in direction:', direction)
-            buffer = [];
-            searchWordInDirection([rowIndex, columnIndex], direction, 0);
-            // console.log('----------')
+        if (matrix[rowIndex][columnIndex] == 'A') {
+            searchXMas([rowIndex, columnIndex]);
         }
     }
 }
