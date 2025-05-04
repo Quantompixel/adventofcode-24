@@ -1,13 +1,14 @@
 import * as fs from 'fs';
 import * as os from 'os';
 
-const path = './src/day_5/input/example.txt';
-// const path = './src/day_4/input/input.txt';
+// const path = './src/day_5/input/example.txt';
+const path = './src/day_5/input/input.txt';
 
 const file = fs.readFileSync(path, 'utf8');
 const lines = file.trim().split(os.EOL);
 const rules: Array<[number, number]> = [];
-const pageNumbers: Array<Array<number>> = [];
+const pageNumberGroups: Array<Array<number>> = [];
+let res = 0;
 
 function parseRules() {
     const data = lines.slice(0, lines.indexOf(''));
@@ -21,13 +22,37 @@ function parseRules() {
     })
 }
 
-function parsePageNumbers() {
+function parsePageNumberGroups() {
     const data = lines.slice(lines.indexOf('') + 1, lines.length);
     data.forEach(value => {
         const numArr = value.split(',').map(num => parseInt(num));
-        pageNumbers.push(numArr);
+        pageNumberGroups.push(numArr);
     })
 }
 
 parseRules();
-parsePageNumbers();
+parsePageNumberGroups();
+
+for (const pageNumbers of pageNumberGroups) {
+    const checkPageNumbers = (pageNumbers: number[]) => {
+        for (const [pageNumber1, pageNumber2] of rules) {
+            const index1 = pageNumbers.indexOf(pageNumber1);
+            const index2 = pageNumbers.indexOf(pageNumber2);
+
+            if (index1 === -1 || index2 === -1) {
+                continue;
+            }
+
+            if (index1 > index2) {
+                console.log(pageNumbers, 'incorrect');
+                return;
+            }
+        }
+        console.log(pageNumbers, 'correct')
+        res += pageNumbers[Math.floor(pageNumbers.length / 2)];
+    }
+
+    checkPageNumbers(pageNumbers);
+}
+
+console.log(res);
