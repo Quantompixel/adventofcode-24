@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as os from 'os';
 
-// const path = './src/day_5/input/example.txt';
-const path = './src/day_5/input/input.txt';
+const path = './src/day_5/input/example.txt';
+// const path = './src/day_5/input/input.txt';
 
 const file = fs.readFileSync(path, 'utf8');
 const lines = file.trim().split(os.EOL);
@@ -35,6 +35,8 @@ parsePageNumberGroups();
 
 for (const pageNumbers of pageNumberGroups) {
     const checkPageNumbers = (pageNumbers: number[]) => {
+        let isIncorrect = false;
+
         for (const [pageNumber1, pageNumber2] of rules) {
             const index1 = pageNumbers.indexOf(pageNumber1);
             const index2 = pageNumbers.indexOf(pageNumber2);
@@ -44,15 +46,26 @@ for (const pageNumbers of pageNumberGroups) {
             }
 
             if (index1 > index2) {
-                console.log(pageNumbers, 'incorrect');
-                return;
+                isIncorrect = true;
+                // console.log(pageNumber1, pageNumber2);
+                // console.log(pageNumbers, 'incorrect');
+                const part1 = pageNumbers.slice(0, index2);
+                const part2 = pageNumbers.slice(index2, pageNumbers.length);
+                part2.splice(part2.indexOf(pageNumber1), 1);
+                // console.log(part1);
+                // console.log(part2);
+                pageNumbers = part1.concat(pageNumber1).concat(part2);
+                // console.log(pageNumbers, 'corrected');
             }
         }
-        console.log(pageNumbers, 'correct')
-        res += pageNumbers[Math.floor(pageNumbers.length / 2)];
+        if (isIncorrect) checkPageNumbers(pageNumbers);
+        else {
+            console.log(pageNumbers);
+            return;
+        }
     }
 
     checkPageNumbers(pageNumbers);
 }
 
-console.log(res);
+// console.log(res);
