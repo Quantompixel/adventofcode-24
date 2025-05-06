@@ -40,7 +40,7 @@ function traverseMap(
     }
 
     const isPositionInArray = (position: {position: [number, number], direction: [number, number]}): boolean => {
-        for (let previousPosition of previousPositions) {
+        for (const previousPosition of previousPositions) {
             if (previousPosition.position[0] === position.position[0] &&
                 previousPosition.position[1] === position.position[1] &&
                 previousPosition.direction[0] === position.direction[0] &&
@@ -54,6 +54,16 @@ function traverseMap(
     if (map[yPos][xPos] !== '%') {
         map[yPos][xPos] = '%';
         res++;
+    }
+
+    console.log(previousPositions);
+    if (!isPositionInArray({position: [yPos, xPos], direction: [yDir, xDir]})) {
+        previousPositions.push({position: [yPos, xPos], direction: [yDir, xDir]});
+    } else {
+        // loop detected
+        console.log('loop detected', {position: [yPos, xPos], direction: [yDir, xDir]});
+        console.log(previousPositions);
+        return;
     }
 
     // map.forEach(row => console.log(row.join('')));
@@ -71,23 +81,7 @@ function traverseMap(
     if (nextPosition[0] < 0 || nextPosition[0] > map.length - 1) return;
     if (nextPosition[1] < 0 || nextPosition[1] > map[nextPosition[0]].length - 1) return;
 
-    if (isPositionInArray({position: [yPos, xPos], direction: [yDir, xDir]})) {
-        previousPositions.push({position: [yPos, xPos], direction: [yDir, xDir]});
-        console.log({position: [yPos, xPos], direction: [yDir, xDir]});
-        console.log(previousPositions);
-        return;
-    }
-
     traverseMap([nextPosition[0], nextPosition[1]], [yDir, xDir], map, step + 1, previousPositions);
-    // console.log(yDir, xDir);
-    // [yDir, xDir] = rotateClockwise([yDir, xDir]);
-    // console.log(yDir, xDir);
-    // [yDir, xDir] = rotateClockwise([yDir, xDir]);
-    // console.log(yDir, xDir);
-    // [yDir, xDir] = rotateClockwise([yDir, xDir]);
-    // console.log(yDir, xDir);
-    // [yDir, xDir] = rotateClockwise([yDir, xDir]);
-    // console.log(yDir, xDir);
 }
 
 traverseMap(playerPosition, [-1, 0], map);
