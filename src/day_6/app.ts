@@ -6,7 +6,6 @@ const path = './src/day_6/input/example.txt';
 
 const file = fs.readFileSync(path, 'utf8');
 const lines = file.trim().split(os.EOL);
-let res = 0;
 
 const map: string[][] = [];
 let playerPosition: [number, number] = [-1, -1];
@@ -26,7 +25,8 @@ function traverseMap(
     [yDir, xDir]: [number, number],
     map: string[][],
     step = 0,
-    previousPositions: Array<{position: [number, number], direction: [number, number]}> = []
+    previousPositions: Array<{ position: [number, number], direction: [number, number] }> = [],
+    obstructionUsed = false
 ) {
     const rotateClockwise = (currentDirection: [number, number]) => {
         const directions: Array<[number, number]> = [[-1, 0], [0, 1], [1, 0], [0, -1]];
@@ -39,7 +39,7 @@ function traverseMap(
         return directions[index + 1];
     }
 
-    const isPositionInArray = (position: {position: [number, number], direction: [number, number]}): boolean => {
+    const isPositionInArray = (position: { position: [number, number], direction: [number, number] }): boolean => {
         for (const previousPosition of previousPositions) {
             if (previousPosition.position[0] === position.position[0] &&
                 previousPosition.position[1] === position.position[1] &&
@@ -53,16 +53,15 @@ function traverseMap(
 
     if (map[yPos][xPos] !== '%') {
         map[yPos][xPos] = '%';
-        res++;
     }
 
-    console.log(previousPositions);
     if (!isPositionInArray({position: [yPos, xPos], direction: [yDir, xDir]})) {
         previousPositions.push({position: [yPos, xPos], direction: [yDir, xDir]});
     } else {
         // loop detected
         console.log('loop detected', {position: [yPos, xPos], direction: [yDir, xDir]});
-        console.log(previousPositions);
+        map[yPos][xPos] = 'O';
+        map.forEach(row => console.log(row.join('')));
         return;
     }
 
@@ -77,15 +76,15 @@ function traverseMap(
         [yDir, xDir] = rotateClockwise([yDir, xDir]);
         nextPosition = [yPos + yDir, xPos + xDir];
     }
-
-    if (nextPosition[0] < 0 || nextPosition[0] > map.length - 1) return;
-    if (nextPosition[1] < 0 || nextPosition[1] > map[nextPosition[0]].length - 1) return;
+    if (map[nextPosition[0]][nextPosition[1]] !== '#' && !obstructionUsed && step > 1) {
+        map[nextPosition[0]][nextPosition[1]] = '#';
+        [yDir, xDir] = rotateClockwise([yDir, xDir]);
+        nextPosition = [yPos + yDir, xPos + xDir];
+        traverseMap([nextPosition[0], nextPosition[1]], [yDir, xDir], map, step + 1, previousPositions, true);
+    }
 
     traverseMap([nextPosition[0], nextPosition[1]], [yDir, xDir], map, step + 1, previousPositions);
 }
 
 traverseMap(playerPosition, [-1, 0], map);
 
-map.forEach(row => console.log(row.join('')));
-
-console.log(res);
