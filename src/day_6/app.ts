@@ -20,13 +20,15 @@ lines.forEach((line, row) => {
     map.push(seperatedLine);
 });
 
+let res = 0;
+
 function traverseMap(
     [yPos, xPos]: [number, number],
     [yDir, xDir]: [number, number],
     map: string[][],
+    obstacleUsed: boolean,
     step = 0,
     previousPositions: Array<{ position: [number, number], direction: [number, number] }> = [],
-    obstructionUsed = false
 ) {
     const rotateClockwise = (currentDirection: [number, number]) => {
         const directions: Array<[number, number]> = [[-1, 0], [0, 1], [1, 0], [0, -1]];
@@ -51,8 +53,24 @@ function traverseMap(
         return false;
     }
 
+    map = structuredClone(map);
+    previousPositions = structuredClone(previousPositions);
+
     if (map[yPos][xPos] !== '%') {
         map[yPos][xPos] = '%';
+    }
+
+    let nextPosition = [yPos + yDir, xPos + xDir];
+
+    if (nextPosition[0] < 0 || nextPosition[0] > map.length - 1) {
+        // console.log("no loop")
+        // map.forEach(row => console.log(row.join('')));
+        return;
+    }
+    if (nextPosition[1] < 0 || nextPosition[1] > map[nextPosition[0]].length - 1) {
+        // console.log("no loop")
+        // map.forEach(row => console.log(row.join('')));
+        return;
     }
 
     if (!isPositionInArray({position: [yPos, xPos], direction: [yDir, xDir]})) {
@@ -60,31 +78,31 @@ function traverseMap(
     } else {
         // loop detected
         console.log('loop detected', {position: [yPos, xPos], direction: [yDir, xDir]});
+        res++;
         map[yPos][xPos] = 'O';
         map.forEach(row => console.log(row.join('')));
         return;
     }
 
-    // map.forEach(row => console.log(row.join('')));
-
-    let nextPosition = [yPos + yDir, xPos + xDir];
-
-    if (nextPosition[0] < 0 || nextPosition[0] > map.length - 1) return;
-    if (nextPosition[1] < 0 || nextPosition[1] > map[nextPosition[0]].length - 1) return;
-
     if (map[nextPosition[0]][nextPosition[1]] === '#') {
         [yDir, xDir] = rotateClockwise([yDir, xDir]);
-        nextPosition = [yPos + yDir, xPos + xDir];
+    } 
+        
+    
+    traverseMap([yPos + yDir, xPos + xDir], [yDir, xDir], map, obstacleUsed, step + 1, structuredClone(previousPositions));
+    
+    if(map[nextPosition[0]][nextPosition[1]] === '#') {
+        return;
     }
-    if (map[nextPosition[0]][nextPosition[1]] !== '#' && !obstructionUsed && step > 1) {
-        map[nextPosition[0]][nextPosition[1]] = '#';
+    
+    if (!obstacleUsed && step > 0) {
+        obstacleUsed = true;
         [yDir, xDir] = rotateClockwise([yDir, xDir]);
-        nextPosition = [yPos + yDir, xPos + xDir];
-        traverseMap([nextPosition[0], nextPosition[1]], [yDir, xDir], map, step + 1, previousPositions, true);
+        map[nextPosition[0]][nextPosition[1]] = 'X';
+        traverseMap([yPos + yDir, xPos + xDir], [yDir, xDir], map, obstacleUsed, step + 1, structuredClone(previousPositions));
     }
-
-    traverseMap([nextPosition[0], nextPosition[1]], [yDir, xDir], map, step + 1, previousPositions);
 }
 
-traverseMap(playerPosition, [-1, 0], map);
+traverseMap(playerPosition, [-1, 0], map, false);
 
+console.log(res);
