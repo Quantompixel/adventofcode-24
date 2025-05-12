@@ -5,11 +5,11 @@
 import * as fs from 'fs';
 import * as os from 'os';
 
-const path = './src/day_6/input/example.txt';
-// const path = './src/day_6/input/input.txt';
+// const path = './src/day_6/input/example.txt';
+const path = './src/day_6/input/input.txt';
 
-const stepsNeeded = 45
-// const stepsNeeded = 5253
+// const stepsNeeded = 45
+const stepsNeeded = 5253
 
 const file = fs.readFileSync(path, 'utf8');
 const lines = file.trim().split(os.EOL);
@@ -92,18 +92,24 @@ function traverseMap(
     }
 
     const checkForCollisions = (posY: number, posX: number, dirY: number, dirX: number): boolean => {
+        // console.log('#############################################');
         while(true) {
-            if(posY < 0 || posY > map.length) return false;
-            if(posX < 0 || posX > map[posY].length) return false;
+            if(posY < 0 || posY > map.length - 1) return false;
+            if(posX < 0 || posX > map[posY].length - 1) return false;
 
             if(map[posY][posX] === '#') return true;
+
+            // console.log(posY, posX);
+            // console.log(yDir, xDir);
+            // map[posY][posX] = '-';
+            // map.forEach(row => console.log(row.join('')));
 
             posY += dirY;
             posX += dirX;
         }
     }
     
-    map.forEach(row => console.log(row.join('')));
+    // map.forEach(row => console.log(row.join('')));
 
     map = structuredClone(map);
     previousPositions = structuredClone(previousPositions);
@@ -148,11 +154,11 @@ function traverseMap(
     }
     
     if (!obstacleUsed && step > 0) {
+        [yDir, xDir] = rotateClockwise([yDir, xDir]);
+        if(!checkForCollisions(yPos, xPos, yDir, xDir)) return;
         obstacleUsed = true;
         stepOfObstaclePlaced = step;
-        [yDir, xDir] = rotateClockwise([yDir, xDir]);
         map[nextPosition[0]][nextPosition[1]] = '#';
-        if(checkForCollisions(nextPosition[0], nextPosition[1], yDir, xDir)) return;
         traverseMap([yPos + yDir, xPos + xDir], [yDir, xDir], map, obstacleUsed, step + 1, previousPositions, stepOfObstaclePlaced);
     }
 }
