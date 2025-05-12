@@ -1,15 +1,15 @@
 // node --require ts-node/register --stack-size=10000 --max_old_space_size=8192 .\src\day_6\app.ts
 // input.txt 5253 steps are necessary
 // example.txt 45 steps are necessary
-// 
+
 import * as fs from 'fs';
 import * as os from 'os';
 
-// const path = './src/day_6/input/example.txt';
-const path = './src/day_6/input/input.txt';
+const path = './src/day_6/input/example.txt';
+// const path = './src/day_6/input/input.txt';
 
-// const stepsNeeded = 45
-const stepsNeeded = 5253
+const stepsNeeded = 45
+// const stepsNeeded = 5253
 
 const file = fs.readFileSync(path, 'utf8');
 const lines = file.trim().split(os.EOL);
@@ -91,6 +91,20 @@ function traverseMap(
         return false;
     }
 
+    const checkForCollisions = (posY: number, posX: number, dirY: number, dirX: number): boolean => {
+        while(true) {
+            if(posY < 0 || posY > map.length) return false;
+            if(posX < 0 || posX > map[posY].length) return false;
+
+            if(map[posY][posX] === '#') return true;
+
+            posY += dirY;
+            posX += dirX;
+        }
+    }
+    
+    map.forEach(row => console.log(row.join('')));
+
     map = structuredClone(map);
     previousPositions = structuredClone(previousPositions);
 
@@ -101,12 +115,12 @@ function traverseMap(
     let nextPosition = [yPos + yDir, xPos + xDir];
 
     if (nextPosition[0] < 0 || nextPosition[0] > map.length - 1) {
-        // console.log(step, 'no loop');
+        console.log(step, 'no loop');
         // map.forEach(row => console.log(row.join('')));
         return;
     }
     if (nextPosition[1] < 0 || nextPosition[1] > map[nextPosition[0]].length - 1) {
-        // console.log(step, 'no loop');
+        console.log(step, 'no loop');
         // map.forEach(row => console.log(row.join('')));
         return;
     }
@@ -138,6 +152,7 @@ function traverseMap(
         stepOfObstaclePlaced = step;
         [yDir, xDir] = rotateClockwise([yDir, xDir]);
         map[nextPosition[0]][nextPosition[1]] = '#';
+        if(checkForCollisions(nextPosition[0], nextPosition[1], yDir, xDir)) return;
         traverseMap([yPos + yDir, xPos + xDir], [yDir, xDir], map, obstacleUsed, step + 1, previousPositions, stepOfObstaclePlaced);
     }
 }
