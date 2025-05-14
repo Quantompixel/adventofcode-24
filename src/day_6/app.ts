@@ -5,18 +5,15 @@
 import * as fs from 'fs';
 import * as os from 'os';
 
-// const path = './src/day_6/input/example.txt';
-const path = './src/day_6/input/input.txt';
-
-// const stepsNeeded = 45
-const stepsNeeded = 5253
+const path = './src/day_6/input/example.txt';
+// const path = './src/day_6/input/input.txt';
 
 const file = fs.readFileSync(path, 'utf8');
 const lines = file.trim().split(os.EOL);
 
-const startTime = Date.now();
-const map: string[][] = [];
+let map: string[][] = [];
 let playerPosition: [number, number] = [-1, -1];
+const positionsOfPath: Array<{posY: number, posX: number, dirY: number, dirX: number}> = [];
 
 lines.forEach((line, row) => {
     const seperatedLine = line.split('');
@@ -28,141 +25,78 @@ lines.forEach((line, row) => {
     map.push(seperatedLine);
 });
 
-let res = 0;
-
-function generateProgressBar(length: number, min: number, current: number,  max: number, isInverted: boolean): string {
-    const percentage = current / (max - min);
-    let progressDoneLength = Math.floor(percentage * length);
-    let progressBar = '|';
-
-    for(let i = 0; i < length; i++) {
-        if(i < progressDoneLength) {
-            progressBar += '#';
-            continue;
-        }
-
-        progressBar += '-';
+function rotateClockwise (dirY:number, dirX:number) {
+    const directions: Array<[number, number]> = [[-1, 0], [0, 1], [1, 0], [0, -1]];
+    const index = directions.findIndex(value => value[0] === dirY && value[1] === dirX);
+    if (index === -1) return [-1, 0];
+    if (index === directions.length - 1) {
+        return directions[0];
     }
 
-    progressBar += '|';
-
-    if(isInverted) {
-        let arr = progressBar.split('').reverse();
-        arr = arr.map(symbol => {
-            if(symbol === '|') return symbol;
-            return symbol === '#' ? '-' : '#';
-        })
-
-        return arr.join('');
-    }
-    
-    return progressBar;
+    return directions[index + 1];
 }
 
-function traverseMap(
-    [yPos, xPos]: [number, number],
-    [yDir, xDir]: [number, number],
-    map: string[][],
-    obstacleUsed: boolean,
-    step = 0,
-    previousPositions: Array<{ position: [number, number], direction: [number, number] }> = [],
-    stepOfObstaclePlaced = -1
+function comparePositions(
+    pos1: {posY: number, posX: number, dirY: number, dirX: number},
+    pos2: {posY: number, posX: number, dirY: number, dirX: number}
+):boolean {
+     if(pos1.posY !== pos2.posY) return false;
+     if(pos1.posX !== pos2.posX) return false;
+     if(pos1.dirY !== pos2.dirY) return false;
+     if(pos1.dirX !== pos2.dirX) return false;
+
+     return true;
+}
+
+function positionArrayIncludesPosition(
+    positionArray: Array<{posY: number, posX: number, dirY: number, dirX: number}>,
+    posY: number, posX: number, dirY: number, dirX: number
+):boolean {
+    for(const position of positionArray) {
+        if(comparePositions(position, {posY: posY, posX: posX, dirY: dirY, dirX: dirX})) return true;
+    }
+    
+    return false;
+}
+
+function drawPath(
+    posY:number, posX:number, dirY:number, dirX:number, map: string[][],
+    positions: Array<{posY: number, posX: number, dirY: number, dirX: number}>
 ) {
-    const rotateClockwise = (currentDirection: [number, number]) => {
-        const directions: Array<[number, number]> = [[-1, 0], [0, 1], [1, 0], [0, -1]];
-        const index = directions.findIndex(value => value[0] === currentDirection[0] && value[1] === currentDirection[1]);
-        if (index === -1) return [-1, 0];
-        if (index === directions.length - 1) {
-            return directions[0];
-        }
-
-        return directions[index + 1];
-    }
-
-    const isPositionInArray = (position: { position: [number, number], direction: [number, number] }): boolean => {
-        for (const previousPosition of previousPositions) {
-            if (previousPosition.position[0] === position.position[0] &&
-                previousPosition.position[1] === position.position[1] &&
-                previousPosition.direction[0] === position.direction[0] &&
-                previousPosition.direction[1] === position.direction[1]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    const checkForCollisions = (posY: number, posX: number, dirY: number, dirX: number): boolean => {
-        // console.log('#############################################');
-        while(true) {
-            if(posY < 0 || posY > map.length - 1) return false;
-            if(posX < 0 || posX > map[posY].length - 1) return false;
-
-            if(map[posY][posX] === '#') return true;
-
-            // console.log(posY, posX);
-            // console.log(yDir, xDir);
-            // map[posY][posX] = '-';
-            // map.forEach(row => console.log(row.join('')));
-
-            posY += dirY;
-            posX += dirX;
-        }
-    }
-    
-    // map.forEach(row => console.log(row.join('')));
-
-    map = structuredClone(map);
-    previousPositions = structuredClone(previousPositions);
-
-    if (map[yPos][xPos] !== '%') {
-        map[yPos][xPos] = '%';
-    }
-
-    let nextPosition = [yPos + yDir, xPos + xDir];
-
-    if (nextPosition[0] < 0 || nextPosition[0] > map.length - 1) {
-        console.log(step, 'no loop');
-        // map.forEach(row => console.log(row.join('')));
-        return;
-    }
-    if (nextPosition[1] < 0 || nextPosition[1] > map[nextPosition[0]].length - 1) {
-        console.log(step, 'no loop');
-        // map.forEach(row => console.log(row.join('')));
-        return;
-    }
-
-    if (!isPositionInArray({position: [yPos, xPos], direction: [yDir, xDir]})) {
-        previousPositions.push({position: [yPos, xPos], direction: [yDir, xDir]});
-    } else {
-        // loop detected
-        console.log(generateProgressBar(20, 0, stepOfObstaclePlaced, stepsNeeded, true), `${stepOfObstaclePlaced}/${stepsNeeded}`, `${Math.floor((Date.now() - startTime) / 1000 / 60)} min`, {position: [yPos, xPos], direction: [yDir, xDir]});
-        res++;
-        map[yPos][xPos] = 'O';
-        // map.forEach(row => console.log(row.join('')));
-        return;
-    }
-
-    if (map[nextPosition[0]][nextPosition[1]] === '#') {
-        [yDir, xDir] = rotateClockwise([yDir, xDir]);
-    } 
+    while(true) {
+        if (posY + dirY < 0 || posY + dirY > map.length - 1) break;
+        if (posX + dirX < 0 || posX + dirX > map[posY].length - 1) break;
         
-    
-    traverseMap([yPos + yDir, xPos + xDir], [yDir, xDir], map, obstacleUsed, step + 1, previousPositions, stepOfObstaclePlaced);
-    
-    if(map[nextPosition[0]][nextPosition[1]] === '#') {
-        return;
+        if (map[posY + dirY][posX + dirX] === '#') {
+            const newDirection = rotateClockwise(dirY, dirX);
+            dirY = newDirection[0];
+            dirX = newDirection[1];
+        }
+
+        posY += dirY;
+        posX += dirX;
+
+        if(positionArrayIncludesPosition(positions, posY, posX, dirY, dirX)) {
+            console.log('loop detected');
+            return;
+        }
+        positions.push({posY: posY, posX: posX, dirY: dirY, dirX: dirX});
+
+        map[posY][posX] = '%';
     }
-    
-    if (!obstacleUsed && step > 0) {
-        [yDir, xDir] = rotateClockwise([yDir, xDir]);
-        if(!checkForCollisions(yPos, xPos, yDir, xDir)) return;
-        obstacleUsed = true;
-        stepOfObstaclePlaced = step;
-        map[nextPosition[0]][nextPosition[1]] = '#';
-        traverseMap([yPos + yDir, xPos + xDir], [yDir, xDir], map, obstacleUsed, step + 1, previousPositions, stepOfObstaclePlaced);
-    }
+
 }
 
-traverseMap(playerPosition, [-1, 0], map, false);
+drawPath(playerPosition[0], playerPosition[1], -1, 0, map, positionsOfPath);
 
-console.log(res);
+let iterations = 0;
+for(const {posY: posY, posX: posX, dirY: dirY, dirX: dirX} of positionsOfPath) {
+    console.log(iterations);
+    let positions: Array<{posY: number, posX: number, dirY: number, dirX: number}> = [];
+    const mapWithObstacle = structuredClone(map);
+    if (posY + dirY < 0 || posY + dirY > mapWithObstacle.length - 1) break;
+    if (posX + dirX < 0 || posX + dirX > mapWithObstacle[posY].length - 1) break;
+    mapWithObstacle[posY + dirY][posX + dirX] = '#';
+    drawPath(posY, posX, dirY, dirX, mapWithObstacle, positions);
+    iterations++;
+}
