@@ -5,8 +5,8 @@
 import * as fs from 'fs';
 import * as os from 'os';
 
-// const path = './src/day_6/input/example.txt';
-const path = './src/day_6/input/input.txt';
+const path = './src/day_6/input/example.txt';
+// const path = './src/day_6/input/input.txt';
 
 const file = fs.readFileSync(path, 'utf8');
 const lines = file.trim().split(os.EOL);
@@ -67,16 +67,12 @@ function drawPath(
     while(true) {
         if(positionArrayIncludesPosition(positions, posY, posX, dirY, dirX)) {
             console.log('loop detected');
-            // map.forEach(line => console.log(line.join('')));
-            if(!positionArrayIncludesPosition(obstaclePositions, posY, posX, -1, -1)) {
-                obstaclePositions.push({posY: posY, posX: posX, dirY: -1, dirX: -1});
-            }
-            return;
+            return true;
         }
         positions.push({posY: posY, posX: posX, dirY: dirY, dirX: dirX});
 
-        if (posY + dirY < 0 || posY + dirY > map.length - 1) break;
-        if (posX + dirX < 0 || posX + dirX > map[posY].length - 1) break;
+        if (posY + dirY < 0 || posY + dirY > map.length - 1) return false;
+        if (posX + dirX < 0 || posX + dirX > map[posY].length - 1) return false;
         
         if (map[posY + dirY][posX + dirX] === '#') {
             const newDirection = rotateClockwise(dirY, dirX);
@@ -111,7 +107,14 @@ for(let {posY: posY, posX: posX, dirY: dirY, dirX: dirX} of positionsOfPath) {
     if (posX + dirX < 0 || posX + dirX > mapWithObstacle[posY].length - 1) continue;
 
     mapWithObstacle[posY + dirY][posX + dirX] = '#';
-    drawPath(posY, posX, dirY, dirX, mapWithObstacle, positions);
+
+    const value = drawPath(posY, posX, dirY, dirX, mapWithObstacle, positions);
+    if(value) {
+      if(!positionArrayIncludesPosition(obstaclePositions, posY + dirY, posX + dirX, -1, -1)) {
+        obstaclePositions.push({posY: posY + dirY, posX: posX + dirX, dirY: -1, dirX: -1});
+        mapWithObstacle.forEach(line => console.log(line.join('')));
+      }    
+    }
 
     iterations++;
     console.log(`${iterations}/${positionsOfPath.length}`);
@@ -119,4 +122,9 @@ for(let {posY: posY, posX: posX, dirY: dirY, dirX: dirX} of positionsOfPath) {
 
 // first answer 1751
 // second answer 1578
+// third answer 1685
+// fourth answer 1243
+// fith answer 1650
+
 console.log(obstaclePositions.length);
+
