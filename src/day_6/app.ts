@@ -107,8 +107,8 @@ for(let {posY: posY, posX: posX, dirY: dirY, dirX: dirX} of positionsOfPath) {
     map[posY][posX] = '-';
     const mapWithObstacle = structuredClone(map);
 
-    if (posY + dirY < 0 || posY + dirY > mapWithObstacle.length - 1) break;
-    if (posX + dirX < 0 || posX + dirX > mapWithObstacle[posY].length - 1) break;
+    if (posY + dirY < 0 || posY + dirY > mapWithObstacle.length - 1) continue;
+    if (posX + dirX < 0 || posX + dirX > mapWithObstacle[posY].length - 1) continue;
 
     mapWithObstacle[posY + dirY][posX + dirX] = '#';
     drawPath(posY, posX, dirY, dirX, mapWithObstacle, positions);
