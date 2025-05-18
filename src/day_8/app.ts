@@ -40,18 +40,21 @@ for (const antennaGroupKey in allAntennas) {
             const yDiff = neighborAntenna.y - antenna.y;
             const xDiff = neighborAntenna.x - antenna.x;
 
-            const antinodeY = antenna.y + 2 * yDiff;
-            const antinodeX = antenna.x + 2 * xDiff;
+            for (let multiplicator = 1; ; multiplicator++) {
+                const antinodeY = antenna.y + multiplicator * yDiff;
+                const antinodeX = antenna.x + multiplicator * xDiff;
 
-            if (antinodeY < 0 || antinodeY > map.length - 1) continue;
-            if (antinodeX < 0 || antinodeX > map[antinodeY].length - 1) continue;
+                if (antinodeY < 0 || antinodeY > map.length - 1) break;
+                if (antinodeX < 0 || antinodeX > map[antinodeY].length - 1) break;
 
-            if (map[antinodeY][antinodeX] === '.') {
-                map[antinodeY][antinodeX] = '#';
-            }
+                if (map[antinodeY][antinodeX] === '.') {
+                    map[antinodeY][antinodeX] = '#';
+                }
 
-            if (!isPositionInPositionArray({ y: antinodeY, x: antinodeX }, antinodePositions)) {
-                antinodePositions.push({ y: antinodeY, x: antinodeX });
+                if (!isPositionInPositionArray({ y: antinodeY, x: antinodeX }, antinodePositions)) {
+                    antinodePositions.push({ y: antinodeY, x: antinodeX });
+                }
+
             }
         }
     }
