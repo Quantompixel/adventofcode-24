@@ -83,7 +83,6 @@ function drawPath(
         posY += dirY;
         posX += dirX;
 
-
         map[posY][posX] = '%';
     }
 
@@ -112,12 +111,12 @@ for (let { posY: posY, posX: posX, dirY: dirY, dirX: dirX } of positionsOfPath) 
     if (value) {
         if (!positionArrayIncludesPosition(obstaclePositions, posY + dirY, posX + dirX, -1, -1)) {
             obstaclePositions.push({ posY: posY + dirY, posX: posX + dirX, dirY: -1, dirX: -1 });
-            mapWithObstacle.forEach(line => console.log(line.join('')));
+            // mapWithObstacle.forEach(line => console.log(line.join('')));
         }
     }
 
     iterations++;
-    console.log(`${iterations}/${positionsOfPath.length}`);
+    console.log(`${iterations}/${positionsOfPath.length - 1}`);
 }
 
 // first answer 1751
@@ -127,4 +126,10 @@ for (let { posY: posY, posX: posX, dirY: dirY, dirX: dirX } of positionsOfPath) 
 // fith answer 1650
 
 console.log(obstaclePositions.length);
+
+for (const obstaclePosition of obstaclePositions) {
+    map[obstaclePosition.posY][obstaclePosition.posX] = 'O';
+}
+
+map.forEach(line => console.log(line.join('')));
 
