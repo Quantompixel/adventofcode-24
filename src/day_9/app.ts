@@ -1,13 +1,15 @@
 import * as fs from 'fs';
 
-const path = './src/day_9/input/example.txt';
-// const path = './src/day_9/input/input.txt';
+// const path = './src/day_9/input/example.txt';
+const path = './src/day_9/input/input.txt';
 
 const file = fs.readFileSync(path, 'utf8');
 const data = file.trim();
 
 const blocks = data.split('');
 let uncompacted = '';
+
+console.log(blocks.join(''));
 
 for (let pointer = 0; pointer < blocks.length; pointer++) {
     const block = blocks[pointer];
@@ -23,6 +25,8 @@ for (let pointer = 0; pointer < blocks.length; pointer++) {
     uncompacted += arr.fill('.').join('');
 }
 
+console.log(uncompacted);
+
 let uncompactedArr = uncompacted.split('');
 
 for(let index = uncompactedArr.length - 1; index > 0; index--) {
@@ -35,7 +39,7 @@ for(let index = uncompactedArr.length - 1; index > 0; index--) {
 }
 
 const compacted = uncompactedArr;
-console.log(compacted);
+console.log(compacted.join(''));
 
 let res = 0;
 compacted.forEach((block, index) => {
